@@ -1,6 +1,8 @@
 import { clientFromConnectionString } from 'azure-iot-device-mqtt';
 import { Message } from 'azure-iot-device';
 
+
+/* eslint-disable no-console */
 export default class Device {
 
   constructor(hub, id, key, defaultProps) {
@@ -26,15 +28,19 @@ export default class Device {
         console.error(`could not connect to IoT Hub: ${err}`);
       } else {
         console.log(`device connected to hub: ${this.hub}`);
+
         this._client.getTwin((err2, twin) => {
           if (err2) {
             console.error('could not get twin');
           } else {
-            twin.on('properties.desired', (delta) => {
-              if (delta.interval > 500 && delta.interval < 20000) {
-                this.properties = { ...this.properties, ...delta };
+            // Create listner for interval property
+            twin.on('properties.desired.interval', (newInterval) => {
+              // Check if this is interval
+              if (newInterval > 500 && newInterval < 20000) {
+                this.properties = { ...this.properties, interval: newInterval };
                 clearInterval(this._interval);
                 this._interval = setInterval(this.sendMessage, this.properties.interval);
+
                 twin.properties.reported.update({ interval: this.properties.interval }, (err3) => {
                   if (err3) {
                     console.log(`error reporting updated twin: ${err3}`);
@@ -43,7 +49,24 @@ export default class Device {
                   }
                 });
               } else {
-                console.log(`interval request of ${delta.interval} is invalid...ignoring`);
+                console.log(`interval request of ${newInterval} is invalid...ignoring`);
+              }
+            });
+
+            // Create listner for mode property
+            twin.on('properties.desired.mode', (newMode) => {
+              if (newMode === 'active' || newMode === 'inactive' || newMode === 'sleeping') {
+                this.properties = { ...this.properties, mode: newMode };
+
+                twin.properties.reported.update({ mode: this.properties.mode }, (err3) => {
+                  if (err3) {
+                    console.log(`error reporting updated twin: ${err3}`);
+                  } else {
+                    console.log(`mode updated to ${this.properties.mode}`);
+                  }
+                });
+              } else {
+                console.log(`mode request of '${newMode}' is invalid...ignoring`);
               }
             });
           }
@@ -59,7 +82,19 @@ export default class Device {
   }
 
   sendMessage = () => {
-    const data = { deviceId: this.id, windSpeed: 10 + (Math.random() * 4) };
+    const data = {
+      recordTimestamp: new Date(),
+      weather: {
+        windSpeed: 4 + (Math.random() * 6),
+        temperature: 70 + (Math.random() * 10),
+        pressure: 14 + (Math.random() * 0.5),
+      },
+      status: {
+        mode: this.properties.mode,
+        speed: 4 + (Math.random() * 6),
+      },
+    };
+
     const message = new Message(JSON.stringify(data));
     console.log(message.getData());
     this._client.sendEvent(message, (e, result) => {
