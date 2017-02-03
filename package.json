@@ -1,7 +1,7 @@
 {
-  "name": "redux-starter",
+  "name": "iotdemo",
   "version": "0.0.1",
-  "description": "a starter template",
+  "description": "a demo for Azure IoT Hub",
   "scripts": {
     "dev": "cross-env NODE_ENV=development babel-node ./server/server.js",
     "build": "webpack && babel server --out-dir build",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ewok2030/redux-starter.git"
+    "url": "git+https://github.com/ewok2030/iotdemo.git"
   },
   "author": "Michael Palumbo",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ewok2030/redux-starter/issues"
+    "url": "https://github.com/ewok2030/iotdemo/issues"
   },
-  "homepage": "https://github.com/ewok2030/redux-starter#readme",
+  "homepage": "https://github.com/ewok2030/iotdemo#readme",
   "dependencies": {
     "axios": "^0.15.3",
     "azure-iot-device": "^1.1.3",
