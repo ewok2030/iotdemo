@@ -2,20 +2,15 @@ import { clientFromConnectionString } from 'azure-iot-device-mqtt';
 import { Message } from 'azure-iot-device';
 import { Gpio } from 'onoff';
 
-
 /* eslint-disable no-console */
 export default class Device {
 
-  constructor(hub, id, key, pin, defaultProps) {
-    this.hub = hub;
-    this.id = id;
-    this.key = key;
+  constructor(conStr, pin) {
     this.pin = pin;
-    this.properties = { ...defaultProps };
+    this.properties = {};
 
     // Connection String
-    const connectionString = `HostName=${this.hub};DeviceId=${this.id};SharedAccessKey=${this.key};`;
-    this._client = clientFromConnectionString(connectionString);
+    this._client = clientFromConnectionString(conStr);
     // this._interval = setInterval(this.sendMessage, this.properties.interval);
 
     this._led = Gpio(this.pin, 'out');
@@ -102,7 +97,7 @@ export default class Device {
     this._led.write(1);
     setTimeout(() => {
       this._led.write(0);
-    }, 500);
+    }, 200);
   }
 
   sendMessage = () => {

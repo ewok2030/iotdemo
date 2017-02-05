@@ -2,7 +2,7 @@
 A NodeJS project for Azure IoT Hub demo. 
 
 ## Device
-To run the simulated device, populate the device keys in [device/config.js](./device/config.js) and run `npm run device`
+To run the simulated device, populate the device keys in [device/config.js](./device/device/config.js) and run `npm start`
 
 # Device Twin
 The device's behaviour is controlled via [Device Twin](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-device-twins) properties as stored in the Iot Hub device registry. 
