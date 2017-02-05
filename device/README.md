@@ -13,6 +13,10 @@ The twin properties for this demo are:
   "interval": 2000,
   "transmit": true,
   "flash": true,
+  "gpio": { 
+    "led": 4,
+    "sensor": 14
+  }
 }
 ```
 | Property | Description | Type |
@@ -20,3 +24,5 @@ The twin properties for this demo are:
 | interval | The frequency in milliseconds which to transmit data to the IoT Hub. The valid range is 2000 &gt; interval &lt; 60000. Requests to go outside that inverval will be ignored. | integer |
 | transmit | If device should transmit data. | boolean |
 | flash | If the device should flash the LED when transmitting data. | boolean |
+| gpio.led | The GPIO pin to use when flashing the LED | integer |
+| gpio.sensor | The GPIO pin to read sensor data from | integer |
