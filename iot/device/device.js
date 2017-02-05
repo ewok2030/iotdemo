@@ -6,16 +6,19 @@ import { Gpio } from 'onoff';
 /* eslint-disable no-console */
 export default class Device {
 
-  constructor(hub, id, key, defaultProps) {
+  constructor(hub, id, key, pin, defaultProps) {
     this.hub = hub;
     this.id = id;
     this.key = key;
+    this.pin = pin;
     this.properties = { ...defaultProps };
 
     // Connection String
     const connectionString = `HostName=${this.hub};DeviceId=${this.id};SharedAccessKey=${this.key};`;
     this._client = clientFromConnectionString(connectionString);
     // this._interval = setInterval(this.sendMessage, this.properties.interval);
+
+    this._led = Gpio(this.pin, 'out');
 
     this._client.on('disconnect', () => {
       clearInterval(this._interval);
@@ -70,6 +73,13 @@ export default class Device {
     });
   }
 
+  flashLed() {
+    this._led.write(1);
+    setTimeout(() => {
+      this._led.write(0);
+    }, 500);
+  }
+
   sendMessage = () => {
     const data = {
       telemetry: {
@@ -84,10 +94,16 @@ export default class Device {
 
     const message = new Message(JSON.stringify(data));
     console.log(message.getData());
-    // Turn on LED for 1/2 second
+
+    // Turn on LED for 1/2 second?
     this._client.sendEvent(message, (e, result) => {
       if (e) console.log(`send error: ${e.toString()}`);
-      if (result) console.log(`send status: ${result.constructor.name}`);
+      if (result) {
+        if (this.properties.flash) {
+          this.flashLed();
+        }
+        console.log(`send status: ${result.constructor.name}`);
+      }
     });
   }
 }
