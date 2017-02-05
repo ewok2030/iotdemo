@@ -37,27 +37,45 @@ export default class Device {
           if (err2) {
             console.error('could not get twin');
           } else {
-            // Create listner for interval property
-            twin.on('properties.desired', (delta) => {
-              console.log(`desired properties has been updates to ${delta}`);
-
-              const oldProps = { ...this.properties };
-              this.properties = { ...this.properties, ...delta };
-
+            // Create listener for interval property
+            twin.on('properties.desired.interval', (interval) => {
               // Validate the properties!
-              if (this.properties.interval > 2000 && this.properties.interval < 60000) {
-                console.error(`desired interval of ${this.properties.interval} is not valid. Ignoring.`);
-                this.properties.interval = oldProps.interval;
+              if (interval < 1000 || interval > 60000) {
+                console.error(`desired transmission interval of ${interval} is not valid (1000 <= x <= 60000). Ignoring.`);
+                return;
               }
+              console.log(`transmission interval has been updated to ${interval}`);
+              this.properties.interval = interval;
+              this.resetInterval();
 
-              // Kill the current interval
-              clearInterval(this._interval);
-              if (this.properties.transmit === true) {
-                this._interval = setInterval(this.sendMessage, this.properties.interval);
+              // Report back to the IoT Hub the state of properties
+              twin.properties.reported.update({ interval: this.properties.interval }, (err3) => {
+                if (err3) console.log(`error reporting updated twin: ${err3}`);
+              });
+            });
+
+            // Create listner for transmit property
+            twin.on('properties.desired.transmit', (transmit) => {
+              console.log(`transmission state has been updated to ${transmit}`);
+
+              // If not already in desired state, do something
+              if (this.properties.transmit !== transmit) {
+                this.properties.transmit = transmit;
+                this.resetInterval();
               }
 
               // Report back to the IoT Hub the state of properties
-              twin.properties.reported.update({ ...this.properties }, (err3) => {
+              twin.properties.reported.update({ transmit: this.properties.transmit }, (err3) => {
+                if (err3) console.log(`error reporting updated twin: ${err3}`);
+              });
+            });
+
+            // Create listner for flash property
+            twin.on('properties.desired.flash', (flash) => {
+              console.log(`flash has been updated to ${flash}`);
+              this.properties.flash = flash;
+              // Report back to the IoT Hub the state of properties
+              twin.properties.reported.update({ flash: this.properties.flash }, (err3) => {
                 if (err3) console.log(`error reporting updated twin: ${err3}`);
               });
             });
@@ -71,6 +89,13 @@ export default class Device {
     this._client.close((err) => {
       console.error(`could not disconnect: ${err}`);
     });
+  }
+
+  resetInterval() {
+    clearInterval(this._interval);
+    if (this.properties.transmit) {
+      this._interval = setInterval(this.sendMessage, this.properties.interval);
+    }
   }
 
   flashLed() {
@@ -99,9 +124,7 @@ export default class Device {
     this._client.sendEvent(message, (e, result) => {
       if (e) console.log(`send error: ${e.toString()}`);
       if (result) {
-        if (this.properties.flash) {
-          this.flashLed();
-        }
+        if (this.properties.flash) this.flashLed();
         console.log(`send status: ${result.constructor.name}`);
       }
     });
