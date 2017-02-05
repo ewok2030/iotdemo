@@ -8,5 +8,3 @@ A NodeJS project for Azure IoT Hub demo.
 * Device
   * A simulated IoT device which uses the [Azure IoT SDK for NodeJS](https://github.com/azure/azure-iot-sdk-node) 
 
-## Device
-To run the simulated device, populate the device keys in [device/config.js](./device/config.js) and run `npm run device`

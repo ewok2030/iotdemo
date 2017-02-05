@@ -4,10 +4,9 @@
   "description": "a demo for Azure IoT Hub",
   "scripts": {
     "dev": "cross-env NODE_ENV=development babel-node ./server/server.js",
-    "build": "webpack && babel server --out-dir build",
     "lint": "eslint client server",
-    "start": "cross-env NODE_ENV=production node build/server.js",
-    "device": "cross-env NODE_ENV=development nodemon --exec babel-node ./device/index.js"
+    "prestart": "webpack && babel server --out-dir build",
+    "start": "cross-env NODE_ENV=production node build/server.js"
   },
   "repository": {
     "type": "git",
@@ -21,9 +20,6 @@
   "homepage": "https://github.com/ewok2030/iotdemo#readme",
   "dependencies": {
     "axios": "^0.15.3",
-    "azure-iot-device": "^1.1.3",
-    "azure-iot-device-mqtt": "^1.1.3",
-    "azure-iothub": "^1.1.3",
     "body-parser": "^1.16.0",
     "compression": "^1.6.2",
     "express": "^4.14.0",
