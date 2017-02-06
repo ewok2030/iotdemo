@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/ewok2030/iotdemo#readme",
   "dependencies": {
-    "onoff": "*",
+    "onoff": "^1.1.1",
+    "node-dht-sensor": "^0.0.32",
     "azure-iot-device": "^1.1.3",
     "azure-iot-device-mqtt": "^1.1.3"
   },
