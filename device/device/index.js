@@ -6,4 +6,4 @@ console.log(deviceConfig);
 
 const device = new Device(deviceConfig.connectionString);
 
-device.connect();
+device.initialize();

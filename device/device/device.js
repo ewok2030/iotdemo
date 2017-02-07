@@ -10,24 +10,23 @@ export default class Device {
     // Create a client
     this._client = clientFromConnectionString(conStr);
 
-    // Get initial twin properties
-    this.initializeProperties();
-    this.initializeLed();
-    this.initializeInterval();
-
-    this._client.on('disconnect', () => {
-      clearInterval(this._interval);
-      this._client.removeAllListeners();
-    });
+    // Some local properties, not to be configured via Twin
+    this._local = {
+      flashLength: 100,
+      sensorType: 22,
+      minInterval: 1000,
+      maxInterval: 60000,
+    };
   }
 
-  initializeProperties() {
+  initialize() {
     this._client.getTwin((err, twin) => {
       if (err) {
-        console.error(`could not get initial device twin: ${err}`);
+        console.error(`could not get twin: ${err}`);
         return;
       }
 
+      this._twin = twin;
       // Initialize
       this.properties = {
         interval: twin.properties.desired.interval,
@@ -36,92 +35,20 @@ export default class Device {
         gpio: { led: twin.properties.desired.gpio.led, sensor: twin.properties.desired.gpio.sensor },
       };
       console.log(`device properties initialized: ${JSON.stringify(this.properties)}`);
-    });
-  }
-
-  connect() {
-    this._client.getTwin((err, twin) => {
-      if (err) {
-        console.error(`could not get twin: ${err}`);
-        return;
-      }
-
-      // Create listener for interval property
-      twin.on('properties.desired.interval', (interval) => {
-        // Validate the properties!
-        if (interval < 1000 || interval > 60000) {
-          console.error(`desired transmission interval of ${interval} is not valid (1000 <= x <= 60000). Ignoring.`);
-          return;
-        }
-
-        console.log(`transmission interval has been updated to ${interval}`);
-        this.properties.interval = interval;
-        this.initializeInterval();
-
-        // Report back to the IoT Hub the state of properties
-        twin.properties.reported.update({ interval: this.properties.interval }, (err2) => {
-          if (err2) console.log(`error reporting updated twin: ${err2}`);
-        });
+      this._twin.properties.reported.update(this.properties, (err2) => {
+        if (err2) console.log(`error reporting updated twin: ${err2}`);
       });
 
-      // Create listner for transmit property
-      twin.on('properties.desired.transmit', (transmit) => {
-        console.log(`transmission state has been updated to ${transmit}`);
-        // If not already in desired state, do something
-        if (this.properties.transmit !== transmit) {
-          this.properties.transmit = transmit;
-          this.initializeInterval();
-        }
+      // Create listener for properties
+      this._twin.on('properties.desired.interval', this.handleIntervalUpdate);
+      this._twin.on('properties.desired.transmit', this.handleTransmitUpdate);
+      this._twin.on('properties.desired.flash', this.handleFlashUpdate);
+      this._twin.on('properties.desired.gpio.led', this.handleLedUpdate);
+      this._twin.on('properties.desired.gpio.sensor', this.handleSensorUpdate);
 
-        // Report back to the IoT Hub the state of properties
-        twin.properties.reported.update({ transmit: this.properties.transmit }, (err3) => {
-          if (err3) console.log(`error reporting updated twin: ${err3}`);
-        });
-      });
-
-      // Create listner for flash property
-      twin.on('properties.desired.flash', (flash) => {
-        console.log(`flash has been updated to ${flash}`);
-        this.properties.flash = flash;
-
-        // Report back to the IoT Hub the state of properties
-        twin.properties.reported.update({ flash: this.properties.flash }, (err3) => {
-          if (err3) console.log(`error reporting updated twin: ${err3}`);
-        });
-      });
-
-      // Create listner for led pin property
-      twin.on('properties.desired.gpio.led', (led) => {
-        console.log(`gpio LED has been updated to ${JSON.stringify(led)}`);
-
-        // Reinitialize LED if necessary
-        if (this.properties.gpio.led !== led) {
-          this.properties.gpio.led = led;
-          this.initializeLed();
-        }
-
-        // Report back to the IoT Hub the state of properties
-        twin.properties.reported.update({ gpio: { led: this.properties.gpio.led } }, (err3) => {
-          if (err3) console.log(`error reporting updated twin: ${err3}`);
-        });
-      });
-
-      // Create listner for sensor pin property
-      twin.on('properties.desired.gpio.sensor', (sensorPin) => {
-        console.log(`gpio sensor has been updated to ${JSON.stringify(sensor)}`);
-        this.properties.gpio.sensor = sensorPin;
-
-        // Report back to the IoT Hub the state of properties
-        twin.properties.reported.update({ gpio: { sensor: this.properties.gpio.sensor } }, (err3) => {
-          if (err3) console.log(`error reporting updated twin: ${err3}`);
-        });
-      });
-    });
-  }
-
-  disconnect() {
-    this._client.close((err) => {
-      console.error(`could not disconnect: ${err}`);
+      // Initialize the device
+      this.initializeLed();
+      this.initializeInterval();
     });
   }
 
@@ -132,49 +59,101 @@ export default class Device {
 
   initializeInterval() {
     if (this._interval) clearInterval(this._interval);
-    if (this.properties.transmit) {
-      this._interval = setInterval(this.sendMessage, this.properties.interval);
+    this._interval = setInterval(this.sendMessage, this.properties.interval);
+  }
+
+  handleIntervalUpdate = (interval) => {
+    // Validate the properties!
+    if (interval < this._local.minInterval || interval > this._local.maxInterval) {
+      console.error(`desired transmission interval of ${interval} [ms] is not valid (${this._local.minInterval} <= x <= ${this._local.maxInterval}). Ignoring.`);
+      return;
     }
-  }
-
-  flashLed() {
-    this._led.write(1);
-    setTimeout(() => {
-      this._led.write(0);
-    }, 100);
-  }
-
-  readSensor() {
-    sensor.read(22, this.properties.gpio.sensor, (err, temp, hum) => {
-      if (err) {
-        console.error(`error reading sensor: ${err}`);
-        return { temperature: null, humidity: null };
-      }
-      return { temperature: temp.toFixed(1), humditiy: hum.toFixed(1) };
+    console.log(`transmission interval has been updated to ${interval}`);
+    this.properties.interval = interval;
+    this.initializeInterval();
+    this._twin.properties.reported.update({ interval: this.properties.interval }, (err) => {
+      if (err) console.log(`error reporting updated twin: ${err}`);
     });
   }
 
+  handleTransmitUpdate = (transmit) => {
+    console.log(`transmission state has been updated to ${transmit}`);
+    // If not already in desired state, do something
+    if (this.properties.transmit !== transmit) {
+      this.properties.transmit = transmit;
+      this.initializeInterval();
+    }
+    this._twin.properties.reported.update({ transmit: this.properties.transmit }, (err) => {
+      if (err) console.log(`error reporting updated twin: ${err}`);
+    });
+  }
+
+  handleFlashUpdate = (flash) => {
+    console.log(`flash has been updated to ${flash}`);
+    this.properties.flash = flash;
+    this._twin.properties.reported.update({ flash: this.properties.flash }, (err) => {
+      if (err) console.log(`error reporting updated twin: ${err}`);
+    });
+  }
+
+  handleLedUpdate = (led) => {
+    console.log(`gpio LED pin has been updated to ${JSON.stringify(led)}`);
+    // Reinitialize LED if necessary
+    if (this.properties.gpio.led !== led) {
+      this.properties.gpio.led = led;
+      this.initializeLed();
+    }
+    this._twin.properties.reported.update({ gpio: { led: this.properties.gpio.led } }, (err) => {
+      if (err) console.log(`error reporting updated twin: ${err}`);
+    });
+  }
+
+  handleSensorUpdate = (pin) => {
+    console.log(`gpio sensor pin has been updated to ${JSON.stringify(pin)}`);
+    this.properties.gpio.sensor = pin;
+    this._twin.properties.reported.update({ gpio: { sensor: this.properties.gpio.sensor } }, (err) => {
+      if (err) console.log(`error reporting updated twin: ${err}`);
+    });
+  }
+
+  flashLed(len) {
+    // Turn on voltage to the pin
+    this._led.write(1);
+    setTimeout(() => {
+      // Turn off the voltage to the pin
+      this._led.write(0);
+    }, len);
+  }
+
   sendMessage = () => {
-    const sensorData = this.readSensor();
-    const data = {
-      telemetry: {
-        timestamp: new Date(),
-        ...sensorData,
-      },
-      status: {
-        flash: this.properties.flash,
-      },
-    };
+    sensor.read(this._local.sensorType, this.properties.gpio.sensor, (err, temp, hum) => {
+      if (err) {
+        console.error(`error reading sensor: ${err}`);
+        return;
+      }
+      // Create payload for the message
+      const data = {
+        telemetry: {
+          timestamp: new Date(),
+          temperature: temp.toFixed(1),
+          humditiy: hum.toFixed(1),
+        },
+        status: {
+          flash: this.properties.flash,
+        },
+      };
+      const message = new Message(JSON.stringify(data));
+      console.log(message.getData());
 
-    const message = new Message(JSON.stringify(data));
-    console.log(message.getData());
+      if (this.properties.flash) this.flashLed(this._local.flashLength);
 
-    // TODO: Flash the LED, or turn on before, and off after transmitting?
-    if (this.properties.flash) this.flashLed();
-    this._client.sendEvent(message, (e, result) => {
-      if (e) console.log(`send error: ${e.toString()}`);
-      if (result) {
-        console.log(`send status: ${result.constructor.name}`);
+      if (this.properties.transmit) {
+        this._client.sendEvent(message, (e, result) => {
+          if (e) console.log(`send error: ${e.toString()}`);
+          if (result) {
+            console.log(`>>>>> Message status: ${result.constructor.name}`);
+          }
+        });
       }
     });
   }
