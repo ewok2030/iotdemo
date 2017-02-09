@@ -3,19 +3,10 @@ import * as deviceController from '../controllers/Device.controller';
 
 const router = new Router();
 
-// Get All
-router.route('/').get(deviceController.getDevices);
-
-// Get
-router.route('/:id').get(deviceController.getDevice);
-
-// Create
-router.route('/').post(deviceController.addDevice);
+// Get Twin
+router.route('/:id/twin').get(deviceController.getDeviceTwin);
 
 // Update
-router.route('/:id').put(deviceController.updateDevice);
-
-// Delete
-router.route('/:id').delete(deviceController.deleteDevice);
+router.route('/:id/twin').put(deviceController.updateDeviceTwin);
 
 export default router;

@@ -6,31 +6,15 @@ import compression from 'compression';
 import bodyParser from 'body-parser';
 import express from 'express';
 import webpack from 'webpack';
-import mongoose from 'mongoose';
 // webpack
 import webpackMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from '../webpack.config';
 
 import serverConfig from './config';
-import deviceSeed from './seed/Device.seed';
 
 // Set native promises as mongoose promise
-mongoose.Promise = global.Promise;
 const isDevelopment = process.env.NODE_ENV === 'development';
-
-// MongoDB Connection
-mongoose.connect(serverConfig.mongoURL, (error) => {
-  if (error) {
-    throw error;
-  }
-
-  // feed some dummy data in DB
-  if (serverConfig.seedDatabase) {
-    taskSeed();
-    projectSeed();
-  }
-});
 
 /**
  * Create Express server.

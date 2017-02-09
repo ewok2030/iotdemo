@@ -20,6 +20,7 @@
   "homepage": "https://github.com/ewok2030/iotdemo#readme",
   "dependencies": {
     "axios": "^0.15.3",
+    "azure-iothub": "^1.1.5",
     "body-parser": "^1.16.0",
     "compression": "^1.6.2",
     "express": "^4.14.0",
