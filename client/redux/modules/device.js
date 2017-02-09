@@ -1,38 +1,38 @@
-import { Registry } from 'azure-iothub';
+import { axios } from 'axios';
 
 // Action types
-const CONNECT_DEVICE = 'iotdemo/device/CONNET_DEVICE';
-const CONNECT_DEVICE_ERROR = 'iotdemo/device/CONNECT_DEVICE_ERROR';
-const UPDATE_TWIN = 'iotdemo/device/UPDATE_TWIN';
+const GET_TWIN_SUCCESS = 'iotdemo/device/GET_TWIN_SUCCESS';
+const GET_TWIN_ERROR = 'iotdemo/device/GET_TWIN_ERROR';
+
+const UPDATE_TWIN_SUCCESS = 'iotdemo/device/UPDATE_TWIN_SUCCESS';
 const UPDATE_TWIN_ERROR = 'iotdemo/device/UPDATE_TWIN_ERROR';
 
 
 // Initial state
 const initialState = {
-  data: [],
+  deviceId: null,
   twin: null,
-  isConnected: null,
+  isConnected: false,
 };
 
 // Reducer
 export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
-    case CONNECT_DEVICE:
+    case GET_TWIN_SUCCESS:
       return {
         ...state,
-        data: action.data.device,
-        twin: action.data.twin,
-        isConnected: true,
+        deviceId: action.data.deviceId,
+        twin: { ...action.data.twin },
       };
-    case CONNECT_DEVICE_ERROR:
+    case GET_TWIN_ERROR:
       return {
         ...state,
-        isConnected: false,
+        twin: null,
       };
-    case UPDATE_TWIN:
+    case UPDATE_TWIN_SUCCESS:
       return {
         ...state,
-        twin: { ...state.twin, ...action.data },
+        twin: { ...action.data.twin },
       };
     case UPDATE_TWIN_ERROR:
       return {
@@ -44,39 +44,18 @@ export default function reducer(state = initialState, action = {}) {
   }
 }
 
-export const connectDevice = (hub, device) => (dispatch) => {
-  const connectionString = `HostName=${hub.host};SharedAccessKeyName=${hub.keyName};SharedAccessKey=${hub.key}`;
-  const registry = Registry.fromConnectionString(connectionString);
-  registry.getTwin(device.id, (err, twin) => {
-    if (err) {
-      console.error(`error getting twin for: ${connectionString}`);
-    } else {
-      dispatch({ type: CONNECT_DEVICE, data: { device, twin: twin.properties } });
-      // Create a listener, that will trigger the UPDATE_TWIN action
-      twin.on('properties.reported', (patch) => {
-        dispatch({ type: UPDATE_TWIN, data: patch });
-      });
-    }
+export const getTwin = deviceId => (dispatch) => {
+  axios.get(`/api/device/${deviceId}/twin`).then((response) => {
+    dispatch({ type: GET_TWIN_SUCCESS, data: response.data });
+  }).catch((response) => {
+    dispatch({ type: GET_TWIN_ERROR, error: response.data });
   });
 };
 
-
-export const updateTwin = (hub, device, patch) => (dispatch) => {
-  const connectionString = `HostName=${hub.host};SharedAccessKeyName=${hub.keyName};SharedAccessKey=${hub.key}`;
-  const registry = Registry.fromConnectionString(connectionString);
-  registry.getTwin(device.id, (err, twin) => {
-    if (err) {
-      console.error(`error getting twin for: ${connectionString}`);
-      dispatch({ type: UPDATE_TWIN_ERROR, error: err });
-    } else {
-      twin.update(patch, (err2, twin2) => {
-        if (err) {
-          console.error(`error getting twin for: ${connectionString}`);
-          dispatch({ type: UPDATE_TWIN_ERROR, error: err2 });
-        } else {
-          dispatch({ type: UPDATE_TWIN, data: twin2.properties });
-        }
-      });
-    }
+export const updateTwin = (deviceId, patch) => (dispatch) => {
+  axios.post(`/api/device/${deviceId}/twin`, patch).then((response) => {
+    dispatch({ type: UPDATE_TWIN_SUCCESS, data: response.data });
+  }).catch((response) => {
+    dispatch({ type: UPDATE_TWIN_ERROR, error: response.data });
   });
 };

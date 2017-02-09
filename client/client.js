@@ -13,7 +13,7 @@ ReactDOM.render(
   <Provider store={store}>
     <Router history={hashHistory}>
       <Route path="/" component={Layout} >
-        <IndexRoute component={Demo} />
+        <Route path="/device(/:deviceId)" name="device" component={Demo} />
       </Route>
     </Router>
   </Provider>, app);

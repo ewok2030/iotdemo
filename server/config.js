@@ -1,5 +1,7 @@
 const config = {
-  mongoURL: process.env.MONGO_URL || 'mongodb://localhost:27017/redux-starter',
+  eventHub: 'HostName=<host>;SharedAccessKeyName=<keyName>;SharedAccessKey=<key>',
+  partition: '$Default',
+  reduxAction: 'iotdemo/device/NEW_MESSAGE',
   port: process.env.PORT || 3000,
 };
 
