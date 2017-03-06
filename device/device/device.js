@@ -135,8 +135,8 @@ export default class Device {
       const data = {
         telemetry: {
           timestamp: new Date(),
-          temperature: temp.toFixed(1),
-          humditiy: hum.toFixed(1),
+          temperature: temp,
+          humidity: hum,
         },
         status: {
           flash: this.properties.flash,
