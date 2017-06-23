@@ -6,11 +6,12 @@ import compression from 'compression';
 import bodyParser from 'body-parser';
 import express from 'express';
 import webpack from 'webpack';
+import socketio from 'socket.io';
 // webpack
 import webpackMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from '../webpack.config';
-
+import iotSockets from './sockets/sockets';
 import serverConfig from './config';
 
 // Set native promises as mongoose promise
@@ -72,9 +73,16 @@ if (isDevelopment) {
 }
 
 /* eslint-disable*/
-app.listen(serverConfig.port, () => {
+const server = app.listen(serverConfig.port, () => {
   console.log('App is running at http://localhost:%d in %s mode', serverConfig.port, app.get('env'));
   console.log('  Press CTRL-C to stop\n');
 });
+
+/**
+ * Start Socket.io
+ */
+const io = socketio(server);
+iotSockets(io, serverConfig);
+
 /* eslint-enable*/
 export default app;
