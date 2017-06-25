@@ -79,11 +79,11 @@ export default class Device extends React.Component {
 
     let temp = -1;
     if (this.props.messages.length > 0) {
-      temp = this.props.messages[this.props.messages.length - 1].telemetry.temperature;
+      temp = this.props.messages[this.props.messages.length - 1].temperature;
     }
     let humid = -1;
     if (this.props.messages.length > 0) {
-      humid = this.props.messages[this.props.messages.length - 1].telemetry.humidity;
+      humid = this.props.messages[this.props.messages.length - 1].humidity;
     }
 
     return (
