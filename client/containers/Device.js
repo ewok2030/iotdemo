@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 // Components
 import DeviceTwinEditor from '../components/DeviceTwinEditor/DeviceTwinEditor';
-import DeviceConsole from '../components/DeviceConsole/DeviceConsole';
 import DeviceChart from '../components/DeviceChart/DeviceChart';
 // Actions
 import { getTwin, updateTwin, clearMessages } from '../redux/modules/device';
@@ -73,6 +72,11 @@ export default class Device extends React.Component {
       />);
     }
 
+    let device = <span className="label label-danger">{this.props.deviceId}</span>;
+    if (this.props.isConnected) {
+      device = <span className="label label-success">{this.props.deviceId}</span>;
+    }
+
     let temp = -1;
     if (this.props.messages.length > 0) {
       temp = this.props.messages[this.props.messages.length - 1].telemetry.temperature;
@@ -85,7 +89,7 @@ export default class Device extends React.Component {
     return (
       <div>
         <h3>
-          Device: <span className="label label-default">{this.props.deviceId}</span>
+          Device: {device}
           <p className="pull-right">Humidity:<span className="label label-default">{humid.toFixed(2)} %</span></p>
           <p className="pull-right">Temperature:<span className="label label-default">{temp.toFixed(2)} C</span></p>
           <p className="pull-right">Messages:<span className="label label-default">{this.props.messages.length}</span>
