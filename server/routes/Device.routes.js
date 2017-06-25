@@ -7,6 +7,6 @@ const router = new Router();
 router.route('/:id/twin').get(deviceController.getDeviceTwin);
 
 // Update
-router.route('/:id/twin').put(deviceController.updateDeviceTwin);
+router.route('/:id/twin').post(deviceController.updateDeviceTwin);
 
 export default router;
