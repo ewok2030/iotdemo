@@ -33,7 +33,7 @@ const deviceRoutes = require('./routes/Device.routes');
 /**
  * API routes
  */
-app.use('/api/devices', deviceRoutes.default);
+app.use('/api/device', deviceRoutes.default);
 
 
 /**
@@ -60,14 +60,14 @@ if (isDevelopment) {
 
   app.use(middleware);
   app.use(webpackHotMiddleware(compiler));
-  // TODO: Cant use browserHistory because all routes get redirected here. ALso, need to support api
-  app.get('/', (req, res) => {
+  // TODO: Cant use browserHistory because all routes get redirected here. Also, need to support api
+  app.get('*', (req, res) => {
     res.write(middleware.fileSystem.readFileSync(path.join(__dirname, 'public/index.html')));
     res.end();
   });
 } else {
   app.use(express.static(path.join(__dirname, '/public')));
-  app.get('/', (req, res) => {
+  app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/index.html'));
   });
 }

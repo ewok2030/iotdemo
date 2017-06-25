@@ -1,5 +1,5 @@
-import config from '../config';
 import { Registry } from 'azure-iothub';
+import config from '../config';
 
 export function getDeviceTwin(req, res) {
   const registry = Registry.fromConnectionString(config.hub);
@@ -14,10 +14,11 @@ export function getDeviceTwin(req, res) {
 
 export function updateDeviceTwin(req, res) {
   const registry = Registry.fromConnectionString(config.hub);
-  registry.updateTwin(req.params.id, req.body, (error, twin) => {
+  registry.updateTwin(req.params.id, { properties: { desired: req.body } }, '*', (error, twin) => {
     if (error) {
       res.status(404).send(error);
     } else {
+      // the twin does not contain the device's response to the update request
       res.json(twin.properties);
     }
   });
