@@ -12,7 +12,7 @@ export default class DeviceConsole extends React.Component {
           Device Messages
         </div>
         <ul className="list-group">
-          {this.props.messages.map(m => <li key={m.telemetry.timestamp} className="list-group-item">{JSON.stringify(m)}</li>)}
+          {this.props.messages.map(m => <li key={m.timestamp} className="list-group-item">{JSON.stringify(m)}</li>)}
         </ul>
       </div>
     );

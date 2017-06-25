@@ -13,7 +13,7 @@ export default class DeviceChart extends React.Component {
       series: [{
         name: 'Temperature',
         marker: { enabled: true, radius: 4 },
-        data: this.props.messages.map(x => [new Date(x.telemetry.timestamp).getTime(), x.telemetry.temperature]),
+        data: this.props.messages.map(x => [new Date(x.sourceTimestamp).getTime(), x.temperature]),
         tooltip: {
           valueDecimals: 2,
           valueSuffix: ' C',
@@ -24,7 +24,7 @@ export default class DeviceChart extends React.Component {
       {
         name: 'Humidity',
         marker: { enabled: true, radius: 4 },
-        data: this.props.messages.map(x => [new Date(x.telemetry.timestamp).getTime(), x.telemetry.humidity]),
+        data: this.props.messages.map(x => [new Date(x.sourceTimestamp).getTime(), x.humidity]),
         tooltip: {
           valueDecimals: 2,
           valueSuffix: ' %',
