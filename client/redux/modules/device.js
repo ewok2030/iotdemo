@@ -29,7 +29,7 @@ export default function reducer(state = initialState, action = {}) {
     case CONNECTION_CLOSED:
       return {
         ...state,
-        isConnected: true,
+        isConnected: false,
       };
     case GET_TWIN_SUCCESS:
       return {
