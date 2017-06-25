@@ -2,6 +2,7 @@ import { clientFromConnectionString } from 'azure-iot-device-mqtt';
 import { Message } from 'azure-iot-device';
 import { Gpio } from 'onoff';
 import sensor from 'node-dht-sensor';
+import uuidv1 from 'uuid/v1';
 
 /* eslint-disable no-console */
 export default class Device {
@@ -133,16 +134,15 @@ export default class Device {
       }
       // Create payload for the message
       const data = {
-        telemetry: {
-          timestamp: new Date(),
-          temperature: temp,
-          humidity: hum,
-        },
+        sourceTimestamp: new Date(),
+        temperature: temp,
+        humidity: hum,
         status: {
           flash: this.properties.flash,
         },
       };
       const message = new Message(JSON.stringify(data));
+      message.messageId = uuidv1();
       console.log(message.getData());
 
       if (this.properties.flash) this.flashLed(this._local.flashLength);
