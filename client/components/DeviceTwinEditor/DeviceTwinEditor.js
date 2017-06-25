@@ -25,32 +25,43 @@ export default class DeviceTwinEditor extends React.Component {
     property: React.PropTypes.string.isRequired,
     propertyType: React.PropTypes.string.isRequired,
     lastReported: React.PropTypes.string.isRequired,
-    reported: React.PropTypes.string.isRequired,
+    reported: React.PropTypes.any.isRequired,
     onUpdate: React.PropTypes.func.isRequired,
+    onRefresh: React.PropTypes.func.isRequired,
 
-  // http://redux-form.com/6.0.0-rc.3/docs/api/ReduxForm.md/
+    // http://redux-form.com/6.0.0-rc.3/docs/api/ReduxForm.md/
+    initialValues: React.PropTypes.shape({
+      desired: React.PropTypes.any.isRequired,
+    }),
     handleSubmit: React.PropTypes.func.isRequired,
-    reset: React.PropTypes.func.isRequired,
     pristine: React.PropTypes.bool.isRequired,
     invalid: React.PropTypes.bool.isRequired,
-    submitting: React.PropTypes.bool.isRequired,
   }
 
   render() {
-    const { pristine, reset, invalid, submitting, handleSubmit, onUpdate } = this.props;
+    const { pristine, invalid, handleSubmit, onUpdate, onRefresh } = this.props;
     return (
-      <div className="container-fluid">
-        <form className="form-inline" onSubmit={handleSubmit(onUpdate)}>
-          <div className="form-group">
-            <label htmlFor={this.props.property}>{this.props.property}</label>
-            <input className="form-control" type={this.props.propertyType} disabled>{this.props.reported}</input>
-            <div className="input-group-addon">{this.props.lastReported}</div>
+      <div className="">
+        <div className="form-group">
+          <label htmlFor={this.props.property}>Interval [ms]</label>
+          <div className="input-group">
+            <div className="input-group-addon">Reported</div>
+            <input className="form-control" type="string" value={`${this.props.reported} @ ${new Date(this.props.lastReported)}`} disabled />
+            <span className="input-group-btn">
+              <button className="btn btn-primary" onClick={onRefresh}>Refresh</button>
+            </span>
           </div>
-
-          <Field name={this.props.property} type={this.props.propertyType} component={renderInput} />
-
-          <button action="submit" disabled={pristine || invalid} className="btn btn-primary">Update</button>
-          <button type="button" disabled={pristine || submitting} onClick={reset} className="btn btn-default">Reset</button>
+        </div>
+        <form className="form" onSubmit={handleSubmit(onUpdate)}>
+          <div className="form-group">
+            <div className="input-group">
+              <div className="input-group-addon">Desired&nbsp;&nbsp;&nbsp;</div>
+              <Field name={this.props.property} type={this.props.propertyType} component={renderInput} />
+              <span className="input-group-btn">
+                <button action="submit" disabled={pristine || invalid} className="btn btn-primary">Update</button>
+              </span>
+            </div>
+          </div>
         </form>
       </div>
     );
