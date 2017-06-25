@@ -16,13 +16,9 @@ export default class Header extends React.Component {
               <span className="icon-bar" />
               <span className="icon-bar" />
             </button>
-            <IndexLink to="/" className="navbar-brand" activeClassName="active" onlyActiveOnIndex >Get Things Done!</IndexLink>
+            <IndexLink to="/" className="navbar-brand" activeClassName="active" onlyActiveOnIndex >IoT Hub Demo</IndexLink>
           </div>
-          <div id="navbar" className="navbar-collapse collapse">
-            <ul className="nav navbar-nav" >
-              <li><Link to="example">Example</Link></li>
-            </ul>               
-          </div>
+          <div id="navbar" className="navbar-collapse collapse" />
         </div>
       </nav>
     );
