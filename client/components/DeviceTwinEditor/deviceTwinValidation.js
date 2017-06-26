@@ -1,7 +1,7 @@
 export const validate = (values) => {
   const errors = {};
   if (!values.desired) {
-    errors.hub = 'Required';
+    // errors.reported = 'Required';
   }
 
   return errors;
