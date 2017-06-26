@@ -1,10 +1,14 @@
 import axios from 'axios';
 
 // Action types
-const NEW_MESSAGE = 'server/NEW_MESSAGE';
+const NEW_MESSAGE = 'client/NEW_MESSAGE';
+const INIT_MESSAGES_ERROR = 'client/INIT_MESSAGES_ERROR';
+const INIT_MESSAGES_SUCCESS = 'client/INIT_MESSAGES_SUCCESS';
 const CLEAR_MESSAGES = 'client/CLEAR_MESSAGES';
-const CONNECTION_OPEN = 'server/CONNECTION_OPEN';
-const CONNECTION_CLOSED = 'server/CONNECTION_CLOSED';
+const OPEN_CONNECTION = 'server/OPEN_CONNECTION';
+const CLOSE_CONNECTION = 'server/CLOSE_CONNECTION';
+const CONNECTION_OPEN = 'client/CONNECTION_OPEN';
+const CONNECTION_CLOSED = 'client/CONNECTION_CLOSED';
 const GET_TWIN_SUCCESS = 'client/GET_TWIN_SUCCESS';
 const GET_TWIN_ERROR = 'client/GET_TWIN_ERROR';
 const UPDATE_TWIN_SUCCESS = 'client/UPDATE_TWIN_SUCCESS';
@@ -52,12 +56,16 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         twin: null,
       };
-    case NEW_MESSAGE: {
+    case INIT_MESSAGES_SUCCESS:
+      return {
+        ...state,
+        messages: action.data.messages.map(x => ({ sourceTimestamp: x.sourcetimestamp, temperature: x.temperature, humidity: x.humidity })),
+      };
+    case NEW_MESSAGE:
       return {
         ...state,
         messages: [...state.messages, action.data.message],
       };
-    }
     case CLEAR_MESSAGES:
       return {
         ...state,
@@ -84,6 +92,22 @@ export const updateTwin = (deviceId, patch) => (dispatch) => {
     dispatch({ type: UPDATE_TWIN_ERROR, error: response.data });
   });
 };
+
+export const openConnection = () => (dispatch) => {
+  dispatch({ type: OPEN_CONNECTION });
+}; // openConnection
+
+export const closeConnection = () => (dispatch) => {
+  dispatch({ type: CLOSE_CONNECTION });
+}; // closeConnection
+
+export const initMessages = (deviceId, hours) => (dispatch) => {
+  axios.post(`/api/device/${deviceId}/messages/history?hours=${hours}`).then((response) => {
+    dispatch({ type: INIT_MESSAGES_SUCCESS, data: { deviceId, messages: response.data } });
+  }).catch((response) => {
+    dispatch({ type: INIT_MESSAGES_ERROR, error: response.data });
+  });
+}; // initMessages
 
 export const clearMessages = () => (dispatch) => {
   dispatch({ type: CLEAR_MESSAGES });

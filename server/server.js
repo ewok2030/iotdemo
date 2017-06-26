@@ -82,6 +82,7 @@ const server = app.listen(serverConfig.port, () => {
  * Start Socket.io
  */
 const io = socketio(server);
+app.set('socketio', io);
 iotSockets(io, serverConfig);
 
 /* eslint-enable*/

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import DeviceTwinEditor from '../components/DeviceTwinEditor/DeviceTwinEditor';
 import DeviceChart from '../components/DeviceChart/DeviceChart';
 // Actions
-import { getTwin, updateTwin, clearMessages } from '../redux/modules/device';
+import { getTwin, updateTwin, openConnection, closeConnection, initMessages, clearMessages } from '../redux/modules/device';
 
 // Map store state to component's properties
 const mapStateToProps = state => ({
@@ -22,6 +22,15 @@ const mapDispatchToProps = dispatch => ({
   updateTwin: (deviceId, patch) => {
     dispatch(updateTwin(deviceId, patch));
   },
+  initMessages: (deviceId, hours) => {
+    dispatch(initMessages(deviceId, hours));
+  },
+  openConnection: () => {
+    dispatch(openConnection());
+  },
+  closeConnection: () => {
+    dispatch(closeConnection());
+  },
   clearMessages: () => {
     dispatch(clearMessages());
   },
@@ -31,11 +40,15 @@ const mapDispatchToProps = dispatch => ({
 export default class Device extends React.Component {
   static propTypes = {
     params: React.PropTypes.object.isRequired,
+    location: React.PropTypes.object.isRequired,
     deviceId: React.PropTypes.string,
     twin: React.PropTypes.object,
     isConnected: React.PropTypes.bool.isRequired,
     getTwin: React.PropTypes.func.isRequired,
     updateTwin: React.PropTypes.func.isRequired,
+    openConnection: React.PropTypes.func.isRequired,
+    closeConnection: React.PropTypes.func.isRequired,
+    initMessages: React.PropTypes.func.isRequired,
     messages: React.PropTypes.array.isRequired,
     clearMessages: React.PropTypes.func.isRequired,
   }
@@ -43,6 +56,7 @@ export default class Device extends React.Component {
   static defaultProps = {
     twin: null,
     deviceId: null,
+    initHours: 1,
   }
 
   constructor(props) {
@@ -54,11 +68,26 @@ export default class Device extends React.Component {
     const { params } = this.props;
     const { deviceId } = params;
     this.props.getTwin(deviceId);
+
+    let hours = 1;
+    if ('hours' in this.props.location.query) {
+      hours = Number(this.props.location.query.hours);
+    }
+
+    // Initialize
+    this.props.initMessages(deviceId, hours);
   }
 
   handleUpdate = patch => this.props.updateTwin(this.props.deviceId, patch);
   handleRefresh = () => this.props.getTwin(this.props.deviceId);
   handleClear = () => this.props.clearMessages();
+  handleConnect = () => {
+    if (this.props.isConnected) {
+      this.props.closeConnection();
+    } else {
+      this.props.openConnection();
+    }
+  }
 
   render() {
     let editor = null;
@@ -72,9 +101,9 @@ export default class Device extends React.Component {
       />);
     }
 
-    let device = <span className="label label-danger">{this.props.deviceId}</span>;
+    let device = <button className="btn btn-danger" onClick={this.handleConnect}>{this.props.deviceId}</button>;
     if (this.props.isConnected) {
-      device = <span className="label label-success">{this.props.deviceId}</span>;
+      device = <button className="btn btn-success" onClick={this.handleConnect}>{this.props.deviceId}</button>;
     }
 
     let temp = -1;

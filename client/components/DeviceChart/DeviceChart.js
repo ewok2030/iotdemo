@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactHighcharts from 'react-highcharts/ReactHighstock';
+import ReactHighcharts from 'react-highcharts';
 
 
 export default class DeviceChart extends React.Component {
@@ -9,6 +9,8 @@ export default class DeviceChart extends React.Component {
 
   render() {
     const config = {
+      title: { text: '' },
+      xAxis: { type: 'datetime' },
       yAxis: [{ title: { text: 'Temperature' }, opposite: false }, { title: { text: 'Humidity' }, opposite: false }],
       series: [{
         name: 'Temperature',
