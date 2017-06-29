@@ -1,9 +1,9 @@
-import Device from './rpi/Device';
+import DummyDevice from './rpi/DummyDevice';
 import deviceConfig from './config/config';
 import defaultTwin from './config/twin';
 
 /* eslint-disable no-console */
 console.log(deviceConfig);
 
-const device = new Device(deviceConfig, defaultTwin);
+const device = new DummyDevice(deviceConfig, defaultTwin);
 device.initialize();

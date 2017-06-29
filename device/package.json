@@ -3,9 +3,8 @@
   "version": "0.0.1",
   "description": "a simulated device for Azure IoT Hub",
   "scripts": {
-    "dev": "babel-node index.js",
+    "dev": "babel-node dummy.js",
     "prestart": "babel index.js --out-dir build && babel rpi --out-dir build/rpi && babel config --out-dir build/config",
-    "lint": "eslint rpi",
     "start": "node ./build/index.js"
   },
   "repository": {
