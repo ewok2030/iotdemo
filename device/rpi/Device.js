@@ -5,7 +5,7 @@ import uuidv1 from 'uuid/v1';
 import DummyDevice from './DummyDevice';
 
 /* eslint-disable no-console */
-export default class TempDevice extends DummyDevice {
+export default class Device extends DummyDevice {
   constructor(config, twin) {
     super(config, twin);
     this._led = Gpio(this.config.led.gpio, 'out');
