@@ -17,7 +17,7 @@ const config = {
   fileupload: {
     interval: {
       min: 1000,
-      max: 3600000
+      max: 86400000
     }
   }
 };
