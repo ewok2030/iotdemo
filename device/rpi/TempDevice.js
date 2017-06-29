@@ -2,7 +2,9 @@ import { Message } from 'azure-iot-device';
 import { Gpio } from 'onoff';
 import sensor from 'node-dht-sensor';
 import uuidv1 from 'uuid/v1';
+import DummyDevice from './DummyDevice';
 
+/* eslint-disable no-console */
 export default class TempDevice extends DummyDevice {
   constructor(config, twin) {
     super(config, twin);
