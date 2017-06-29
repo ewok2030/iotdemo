@@ -59,7 +59,7 @@ export default class DummyDevice {
   handleFlashUpdate = (flash) => {
     console.log(`message with flash has been updated to ${flash}`);
     this.properties.message.flash = flash;
-    this._twin.properties.reported.update({ flash: this.properties.message.flash }, (err) => {
+    this._twin.properties.reported.update({ message: { flash: this.properties.message.flash } }, (err) => {
       if (err) console.log(`error reporting updated twin: ${err}`);
     });
   }
