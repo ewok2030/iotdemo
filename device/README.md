@@ -10,19 +10,15 @@ The device's behaviour is controlled via [Device Twin](https://docs.microsoft.co
 The twin properties for this demo are:
 ```javascript
 {
-  "interval": 2000,
-  "transmit": true,
-  "flash": true,
-  "gpio": { 
-    "led": 4,
-    "sensor": 14
+  "message": {
+    "interval": 2000,
+    "transmit": true,
+    "flash": true
   }
 }
 ```
 | Property | Description | Type |
 | --- | --- | --- |
-| interval | The frequency in milliseconds which to transmit data to the IoT Hub. The valid range is 2000 &gt; interval &lt; 60000. Requests to go outside that inverval will be ignored. | integer |
-| transmit | If device should transmit data. | boolean |
-| flash | If the device should flash the LED when transmitting data. | boolean |
-| gpio.led | The GPIO pin to use when flashing the LED | integer |
-| gpio.sensor | The GPIO pin to read sensor data from | integer |
+| message.interval | The frequency in milliseconds which to transmit data to the IoT Hub. The valid range is 2000 &gt; interval &lt; 3600000. Requests to go outside that inverval will be ignored. | integer |
+| message.transmit | If device should transmit streaming message data. | boolean |
+| message.flash | If the device should flash the LED when transmitting streaming message data. | boolean |
