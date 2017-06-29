@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "babel-node index.js",
     "prestart": "babel index.js --out-dir build && babel rpi --out-dir build && babel config --out-dir build",
-    "lint": "eslint device",
+    "lint": "eslint rpi",
     "start": "node ./build/index.js"
   },
   "repository": {

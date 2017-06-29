@@ -23,7 +23,7 @@ export default class DummyDevice {
       this._twin.on('properties.desired.message.interval', this.handleIntervalUpdate);
       this._twin.on('properties.desired.message.transmit', this.handleTransmitUpdate);
       this._twin.on('properties.desired.message.flash', this.handleFlashUpdate);
-      
+
       // Initialize the device
       this.start();
     });
@@ -85,9 +85,9 @@ export default class DummyDevice {
   sendEvent(message) {
     this._client.sendEvent(message, (e, result) => {
       if (e) console.log(`Send Message Error: ${e.toString()}`);
-        if (result) {
-          console.log(`Send Message >>> ${message.getData()}`);
-        }
+      if (result) {
+        console.log(`Send Message >>> ${message.getData()}`);
+      }
     });
   }
 }
