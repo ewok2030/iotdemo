@@ -20,6 +20,7 @@ const config = {
       min: 1000,
       max: 86400000,
     },
+    tempfile: './sensordata.log',
   },
 };
 

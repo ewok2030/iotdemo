@@ -1,6 +1,7 @@
 import { clientFromConnectionString } from 'azure-iot-device-mqtt';
 import { Message } from 'azure-iot-device';
 import uuidv1 from 'uuid/v1';
+import fs from 'fs';
 
 /* eslint-disable no-console */
 export default class DummyDevice {
@@ -78,6 +79,9 @@ export default class DummyDevice {
     const message = new Message(JSON.stringify(data));
     message.messageId = uuidv1();
 
+    // log the message in file
+    this.appendMessageToFile(message);
+
     // send the data message
     if (this.properties.message.transmit) this.sendEvent(message);
   }
@@ -90,4 +94,34 @@ export default class DummyDevice {
       }
     });
   }
+
+  appendMessageToFile(message) {
+    if (!fs.existsSync(this.config.fileupload.tempfile)) {
+      // no header will be written to the file
+      fs.writeFileSync(this.config.fileupload.tempfile, `${message.getData()}\n`);
+    } else {
+      fs.appendFileSync(this.config.fileupload.tempfile, `${message.getData()}\n`);
+    }
+  }
+
+  uploadFile(path) {
+    const dt = new Date();
+    const year = dt.getUTCFullYear();
+    const month = dt.getUTCMonth();
+    const day = dt.getUTCDate();
+    const now = dt.toUTCString().replace(new RegExp(':', 'g'), '');
+    const fname = `sensordata/${year}/${month}/${day}/${now}.csv`;
+    fs.stat(path, (err, fstats) => {
+      const filestream = fs.createReadStream(path);
+
+      this._client.uploadToBlob(fname, filestream, fstats.size, (err2, result) => {
+        if (err2) console.error(`error uploading file: ${fname}; error: ${err2.message}`);
+        else {
+          console.log(`uploaded file >>> ${result}`);
+          fs.unlink(this.config.fileupload.tempfile);
+        } // upload
+        filestream.destroy();
+      });
+    });
+  } // upload
 }
