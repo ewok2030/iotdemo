@@ -1,6 +1,5 @@
 const config = {
   connectionString: 'HostName=<host>;DeviceId=<deviceId>;SharedAccessKey=<deviceKey>;',
-  dummy: true,
   sensor: {
     type: 22,
     gpio: 16,
