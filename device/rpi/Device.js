@@ -41,7 +41,7 @@ export default class Device extends DummyDevice {
       // flash the LED
       if (this.properties.message.flash) this.flashLed(this.config.led.flashLength);
       // send the data message
-      if (this.properties.message.transmit) super.sendEvent(message);
+      if (this.properties.message.transmit) super.transmitEvent(message);
     });
   }
 

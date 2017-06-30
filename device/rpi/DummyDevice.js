@@ -21,21 +21,29 @@ export default class DummyDevice {
 
       // Create listener for properties
       this._twin = twin;
-      this._twin.on('properties.desired.message.interval', this.handleIntervalUpdate);
-      this._twin.on('properties.desired.message.transmit', this.handleTransmitUpdate);
+      this._twin.on('properties.desired.message.interval', this.handleMessageIntervalUpdate);
+      this._twin.on('properties.desired.message.transmit', this.handleMessageTransmitUpdate);
       this._twin.on('properties.desired.message.flash', this.handleFlashUpdate);
+      this._twin.on('properties.desired.fileupload.interval', this.handleUploadIntervalUpdate);
+      this._twin.on('properties.desired.fileupload.transmit', this.handleUploadTransmitUpdate);
 
       // Initialize the device
-      this.start();
+      this.startMessaging();
+      this.startUploading();
     });
   }
 
-  start() {
-    if (this._interval) clearInterval(this._interval);
-    this._interval = setInterval(this.sendMessage, this.properties.message.interval);
+  startMessaging() {
+    if (this._messageInterval) clearInterval(this._messageInterval);
+    this._messageInterval = setInterval(this.sendMessage, this.properties.message.interval);
   }
 
-  handleIntervalUpdate = (interval) => {
+  startUploading() {
+    if (this._uploadInterval) clearInterval(this._uploadInterval);
+    this._uploadInterval = setInterval(() => { this._ready = true; }, this.properties.fileupload.interval);
+  }
+
+  handleMessageIntervalUpdate = (interval) => {
     // Validate the properties!
     if (interval < this.config.message.interval.min || interval > this.config.message.interval.max) {
       console.error(`desired message transmission interval of ${interval} [ms] is not valid (${this.config.messsage.interval.min} <= x <= ${this.config.message.interval.max}). Ignoring.`);
@@ -43,17 +51,39 @@ export default class DummyDevice {
     }
     console.log(`message transmission interval has been updated to ${interval}`);
     this.properties.message.interval = interval;
-    this.start();
+    this.startMessaging();
     this._twin.properties.reported.update({ message: { interval: this.properties.message.interval } }, (err) => {
       if (err) console.log(`error reporting updated twin: ${err}`);
     });
   }
 
-  handleTransmitUpdate = (transmit) => {
+  handleUploadIntervalUpdate = (interval) => {
+    // Validate the properties!
+    if (interval < this.config.fileupload.interval.min || interval > this.config.fileupload.interval.max) {
+      console.error(`desired file upload interval of ${interval} [ms] is not valid (${this.config.fileupload.interval.min} <= x <= ${this.config.fileupload.interval.max}). Ignoring.`);
+      return;
+    }
+    console.log(`file upload interval has been updated to ${interval}`);
+    this.properties.fileupload.interval = interval;
+    this.startUploading();
+    this._twin.properties.reported.update({ fileupload: { interval: this.properties.fileupload.interval } }, (err) => {
+      if (err) console.log(`error reporting updated twin (fileupload): ${err}`);
+    });
+  }
+
+  handleMessageTransmitUpdate = (transmit) => {
     console.log(`message transmission state has been updated to ${transmit}`);
     this.properties.message.transmit = transmit;
     this._twin.properties.reported.update({ message: { transmit: this.properties.message.transmit } }, (err) => {
       if (err) console.log(`error reporting updated twin: ${err}`);
+    });
+  }
+
+  handleUploadTransmitUpdate = (transmit) => {
+    console.log(`file upload transmission state has been updated to ${transmit}`);
+    this.properties.fileupload.transmit = transmit;
+    this._twin.properties.reported.update({ fileupload: { transmit: this.properties.fileupload.transmit } }, (err) => {
+      if (err) console.log(`error reporting updated twin (fileupload): ${err}`);
     });
   }
 
@@ -83,10 +113,13 @@ export default class DummyDevice {
     this.appendMessageToFile(message);
 
     // send the data message
-    if (this.properties.message.transmit) this.sendEvent(message);
+    if (this.properties.message.transmit) this.transmitEvent(message);
+
+    // upload file if ready
+    if (this._ready === true) this.uploadFile();
   }
 
-  sendEvent(message) {
+  transmitEvent(message) {
     this._client.sendEvent(message, (e, result) => {
       if (e) console.log(`Send Message Error: ${e.toString()}`);
       if (result) {
@@ -104,22 +137,29 @@ export default class DummyDevice {
     }
   }
 
-  uploadFile(path) {
+  readyToUpload = () => {
+    this._readyToUpload = true;
+  }
+
+  uploadFile() {
     const dt = new Date();
     const year = dt.getUTCFullYear();
     const month = dt.getUTCMonth();
     const day = dt.getUTCDate();
-    const now = dt.toUTCString().replace(new RegExp(':', 'g'), '');
-    const fname = `sensordata/${year}/${month}/${day}/${now}.csv`;
-    fs.stat(path, (err, fstats) => {
-      const filestream = fs.createReadStream(path);
+    const now = dt.toISOString().replace(new RegExp(':', 'g'), '');
+    // the multi-part filename is not going to work until v1.1.15
+    // const fname = `sensordata/${year}/${month}/${day}/${now}.csv`;
+    const fname = `${now}.csv`;
 
-      this._client.uploadToBlob(fname, filestream, fstats.size, (err2, result) => {
-        if (err2) console.error(`error uploading file: ${fname}; error: ${err2.message}`);
+    fs.stat(this.config.fileupload.tempfile, (err, fstats) => {
+      const filestream = fs.createReadStream(this.config.fileupload.tempfile);
+
+      this._client.uploadToBlob(fname.toString(), filestream, fstats.size, (err2, result) => {
+        if (err2) console.error(`error uploading file: ${fname}; error: ${err2}`);
         else {
-          console.log(`uploaded file >>> ${result}`);
           fs.unlink(this.config.fileupload.tempfile);
-        } // upload
+        }
+        this._ready = false;
         filestream.destroy();
       });
     });
