@@ -96,8 +96,8 @@ export default class Device extends React.Component {
         onUpdate={this.handleUpdate}
         onRefresh={this.handleRefresh}
         property="interval" propertyType="number"
-        lastReported={this.props.twin.reported.$metadata.interval.$lastUpdated}
-        reported={this.props.twin.reported.interval}
+        lastReported={this.props.twin.reported.$metadata.message.interval.$lastUpdated}
+        reported={this.props.twin.reported.message.interval}
       />);
     }
 
