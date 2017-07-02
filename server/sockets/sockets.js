@@ -10,7 +10,7 @@ export default function (io, config) {
           eventHubClient = Client.fromConnectionString(config.messageEndpoint, config.messageNamespace);
           // Connect to even hub and start listening
           eventHubClient.open()
-            .then(() => eventHubClient.createReceiver(config.consumerGroup, '1', { startAfterTime: Date.now() }))
+            .then(() => eventHubClient.createReceiver(config.messageConsumerGroup, '1', { startAfterTime: Date.now() }))
             .then((rx) => {
               // rx.on('errorReceived', (err) => { console.log(err); });
               socket.emit('action', { type: 'client/CONNECTION_OPEN' });
