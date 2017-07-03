@@ -95,7 +95,7 @@ export default class Device extends React.Component {
       editor = (<DeviceTwinEditor
         onUpdate={this.handleUpdate}
         onRefresh={this.handleRefresh}
-        property="interval" propertyType="number"
+        property="message.interval" propertyType="number"
         lastReported={this.props.twin.reported.$metadata.message.interval.$lastUpdated}
         reported={this.props.twin.reported.message.interval}
       />);
