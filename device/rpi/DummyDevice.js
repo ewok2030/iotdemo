@@ -154,7 +154,7 @@ export default class DummyDevice {
     fs.stat(this.config.fileupload.tempfile, (err, fstats) => {
       const filestream = fs.createReadStream(this.config.fileupload.tempfile);
 
-      this._client.uploadToBlob(fname.toString(), filestream, fstats.size, (err2) => {
+      this._client.uploadToBlob(fname, filestream, fstats.size, (err2) => {
         if (err2) console.error(`error uploading file: ${fname}; error: ${err2}`);
         else {
           console.log(`uploaded file ${fname}; deleting the file`);
