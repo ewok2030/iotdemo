@@ -40,7 +40,7 @@ export default class DummyDevice {
 
   startUploading() {
     if (this._uploadInterval) clearInterval(this._uploadInterval);
-    this._uploadInterval = setInterval(() => { this._ready = true; }, this.properties.fileupload.interval);
+    this._uploadInterval = setInterval(this.readyToUpload, this.properties.fileupload.interval);
   }
 
   handleMessageIntervalUpdate = (interval) => {
@@ -116,7 +116,7 @@ export default class DummyDevice {
     if (this.properties.message.transmit) this.transmitEvent(message);
 
     // upload file if ready
-    if (this._ready === true) this.uploadFile();
+    if (this.properties.fileupload.transmit && this._readyToUpload) this.uploadFile();
   }
 
   transmitEvent(message) {
@@ -147,19 +147,19 @@ export default class DummyDevice {
     const month = dt.getUTCMonth();
     const day = dt.getUTCDate();
     const now = dt.toISOString().replace(new RegExp(':', 'g'), '');
-    // the multi-part filename is not going to work until v1.1.15
-    // const fname = `sensordata/${year}/${month}/${day}/${now}.csv`;
-    const fname = `${now}.csv`;
+    const fname = `sensordata/${year}/${month}/${day}/${now}.csv`;
+
+    this._readyToUpload = false;
 
     fs.stat(this.config.fileupload.tempfile, (err, fstats) => {
       const filestream = fs.createReadStream(this.config.fileupload.tempfile);
 
-      this._client.uploadToBlob(fname.toString(), filestream, fstats.size, (err2, result) => {
+      this._client.uploadToBlob(fname.toString(), filestream, fstats.size, (err2) => {
         if (err2) console.error(`error uploading file: ${fname}; error: ${err2}`);
         else {
+          console.log(`uploaded file ${fname}; deleting the file`);
           fs.unlink(this.config.fileupload.tempfile);
         }
-        this._ready = false;
         filestream.destroy();
       });
     });
