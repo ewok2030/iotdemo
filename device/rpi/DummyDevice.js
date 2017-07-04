@@ -40,7 +40,7 @@ export default class DummyDevice {
 
   startUploading() {
     if (this._uploadInterval) clearInterval(this._uploadInterval);
-    this._uploadInterval = setInterval(this.readyToUpload, this.properties.fileupload.interval);
+    this._uploadInterval = setInterval(this.uploadFile, this.properties.fileupload.interval);
   }
 
   handleMessageIntervalUpdate = (interval) => {
@@ -114,9 +114,6 @@ export default class DummyDevice {
 
     // send the data message
     if (this.properties.message.transmit) this.transmitEvent(message);
-
-    // upload file if ready
-    if (this.properties.fileupload.transmit && this._readyToUpload) this.uploadFile();
   }
 
   transmitEvent(message) {
@@ -142,10 +139,6 @@ export default class DummyDevice {
     }
   }
 
-  readyToUpload = () => {
-    this._readyToUpload = true;
-  }
-
   uploadFile() {
     const dt = new Date();
     const year = dt.getUTCFullYear();
@@ -154,19 +147,19 @@ export default class DummyDevice {
     const now = dt.toISOString().replace(new RegExp(':', 'g'), '');
     const fname = `sensordata/${year}/${month}/${day}/${now}.csv`;
 
-    this._readyToUpload = false;
-
     fs.stat(this.config.fileupload.tempfile, (err, fstats) => {
-      const filestream = fs.createReadStream(this.config.fileupload.tempfile);
-
-      this._client.uploadToBlob(fname, filestream, fstats.size, (err2) => {
-        if (err2) console.error(`error uploading file: ${fname}; error: ${err2}`);
-        else {
-          console.log(`uploaded file ${fname}; deleting the file`);
-          fs.unlink(this.config.fileupload.tempfile);
-        }
-        filestream.destroy();
-      });
+      if (err) console.error(`error reading temp file: ${this.config.fileupload.tempfile}`);
+      else {
+        const filestream = fs.createReadStream(this.config.fileupload.tempfile);
+        this._client.uploadToBlob(fname, filestream, fstats.size, (err2) => {
+          if (err2) console.error(`error uploading file: ${fname}; error: ${err2}`);
+          else {
+            console.log(`uploaded file ${fname}; deleting the file`);
+            fs.unlink(this.config.fileupload.tempfile);
+          }
+          filestream.destroy();
+        });
+      }
     });
   } // upload
 }

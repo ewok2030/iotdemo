@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "babel-node dummy.js",
     "prestart": "babel index.js --out-dir build && babel rpi --out-dir build/rpi && babel config --out-dir build/config",
-    "start": "forever start ./build/index.js"
+    "start": "forever start ./build/index.js",
+    "stop": "forever stop ./build/index.js"
   },
   "repository": {
     "type": "git",
