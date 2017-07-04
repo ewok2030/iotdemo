@@ -129,11 +129,16 @@ export default class DummyDevice {
   }
 
   appendMessageToFile(message) {
+    console.log(`adding message to file ${this.config.fileupload.tempfile}`);
     if (!fs.existsSync(this.config.fileupload.tempfile)) {
       // no header will be written to the file
+      console.log('writing message to file');
       fs.writeFileSync(this.config.fileupload.tempfile, `${message.getData()}\n`);
+      console.log('message written to file');
     } else {
+      console.log('appending to file');
       fs.appendFileSync(this.config.fileupload.tempfile, `${message.getData()}\n`);
+      console.log('appended to file');
     }
   }
 
