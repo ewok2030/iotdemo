@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "babel-node dummy.js",
     "prestart": "babel index.js --out-dir build && babel rpi --out-dir build/rpi && babel config --out-dir build/config",
-    "start": "node ./build/index.js"
+    "start": "forever start ./build/index.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "dependencies": {
     "azure-iot-device": "^1.1.15",
     "azure-iot-device-mqtt": "^1.1.15",
+    "forever": "^0.15.3",
     "fs": "0.0.1-security",
     "node-dht-sensor": "^0.0.32",
     "onoff": "^1.1.1",
