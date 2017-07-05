@@ -6,7 +6,7 @@ const twin = {
   },
   fileupload: {
     transmit: true,
-    interval: 3600000,
+    counter: 10,
   },
 };
 
