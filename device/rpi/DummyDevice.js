@@ -30,7 +30,7 @@ export default class DummyDevice {
 
   start() {
     if (this._interval) clearInterval(this._interval);
-    this._interval = setInterval(this.sendMessage, this.properties.message.interval);
+    this._interval = setInterval(this.readData, this.properties.message.interval);
   }
 
   handleMessageUpdate = (patch) => {
@@ -64,21 +64,20 @@ export default class DummyDevice {
     });
   }
 
-  readData() {
+  readData = () => {
     // Create dummy payload for the message
-    return {
+    this.sendMessage({
       sourceTimestamp: new Date(),
       temperature: -1 * Math.random(),
       humidity: -1 * Math.random(),
       status: {
         flash: this.properties.message.flash,
       },
-    };
+    });
   }
 
-  sendMessage = () => {
+  sendMessage(data) {
     // Create payload for the message
-    const data = this.readData();
     const message = new Message(JSON.stringify(data));
     message.messageId = uuidv1();
 
@@ -88,7 +87,7 @@ export default class DummyDevice {
     // send the data message
     if (this.properties.message.transmit === true) {
       this._client.sendEvent(message, (e, result) => {
-        if (e) console.error(`Send Message Error: ${e.toString()}`);
+        if (e) throw e;
         if (result) {
           console.log(`Send Message >>> ${message.getData()}`);
         }
