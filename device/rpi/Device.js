@@ -1,7 +1,5 @@
-import { Message } from 'azure-iot-device';
 import { Gpio } from 'onoff';
 import sensor from 'node-dht-sensor';
-import uuidv1 from 'uuid/v1';
 import DummyDevice from './DummyDevice';
 
 /* eslint-disable no-console */
@@ -20,28 +18,22 @@ export default class Device extends DummyDevice {
     }, len);
   }
 
-  sendMessage = () => {
-    sensor.read(this.config.sensor.type, this.config.sensor.gpio, (err, temp, hum) => {
-      if (err) {
-        console.error(`error reading sensor: ${err}`);
-        return;
-      }
+  readData = () => {
+    // flash the LED
+    if (this.properties.message.flash) this.flashLed(this.config.led.flashLength);
+
+    sensor.read(this.config.sensor.type, this.config.sensor.gpio, (err, temperature, humidity) => {
+      if (err) throw err;
+
       // Create payload for the message
-      const data = {
+      this.sendMessage({
         sourceTimestamp: new Date(),
-        temperature: temp,
-        humidity: hum,
+        temperature,
+        humidity,
         status: {
           flash: this.properties.message.flash,
         },
-      };
-      const message = new Message(JSON.stringify(data));
-      message.messageId = uuidv1();
-
-      // flash the LED
-      if (this.properties.message.flash) this.flashLed(this.config.led.flashLength);
-      // send the data message
-      if (this.properties.message.transmit) super.transmitEvent(message);
+      });
     });
   }
 

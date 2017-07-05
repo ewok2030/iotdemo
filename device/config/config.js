@@ -15,11 +15,10 @@ const config = {
     },
   },
   fileupload: {
-    interval: {
-      min: 1000,
-      max: 86400000,
+    counter: {
+      min: 1,
+      max: 1000,
     },
-    tempfile: './sensordata.log',
   },
 };
 
