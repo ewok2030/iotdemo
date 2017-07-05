@@ -18,7 +18,7 @@ export default class Device extends DummyDevice {
     }, len);
   }
 
-  readData() {
+  readData = () => {
     // flash the LED
     if (this.properties.message.flash) this.flashLed(this.config.led.flashLength);
 
@@ -26,14 +26,14 @@ export default class Device extends DummyDevice {
       if (err) throw err;
 
       // Create payload for the message
-      return {
+      this.sendMessage({
         sourceTimestamp: new Date(),
         temperature,
         humidity,
         status: {
           flash: this.properties.message.flash,
         },
-      };
+      });
     });
   }
 
