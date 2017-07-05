@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "babel-node dummy.js",
     "prestart": "babel index.js --out-dir build && babel rpi --out-dir build/rpi && babel config --out-dir build/config",
-    "start": "node ./build/index.js"
+    "start": "forever start ./build/index.js",
+    "stop": "forever stop ./build/index.js"
   },
   "repository": {
     "type": "git",
@@ -18,11 +19,13 @@
   },
   "homepage": "https://github.com/ewok2030/iotdemo#readme",
   "dependencies": {
-    "azure-iot-device": "^1.1.14",
-    "azure-iot-device-mqtt": "^1.1.14",
+    "azure-iot-device": "^1.1.15",
+    "azure-iot-device-mqtt": "^1.1.15",
+    "forever": "^0.15.3",
     "fs": "0.0.1-security",
     "node-dht-sensor": "^0.0.32",
     "onoff": "^1.1.1",
+    "tmp": "0.0.31",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
