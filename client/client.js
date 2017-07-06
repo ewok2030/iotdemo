@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, hashHistory } from 'react-router';
+import { Router, Route, IndexRoute, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 
 // Views
 import Layout from './containers/Layout';
-import Device from './containers/Device';
+import DeviceHome from './containers/DeviceHome';
+import DeviceChart from './containers/DeviceChart';
 
 class App extends React.Component {
   render() {
@@ -14,7 +15,8 @@ class App extends React.Component {
       <Provider store={store}>
         <Router history={hashHistory}>
           <Route path="/" component={Layout} >
-            <Route path="/device(/:deviceId)" name="device" component={Device} />
+            <IndexRoute component={DeviceHome} />
+            <Route path="/device(/:deviceId)" name="device" component={DeviceChart} />
           </Route>
         </Router>
       </Provider>

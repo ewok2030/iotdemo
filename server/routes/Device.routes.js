@@ -3,6 +3,9 @@ import * as deviceController from '../controllers/Device.controller';
 
 const router = new Router();
 
+// Get Devices
+router.route('/').get(deviceController.getDevices);
+
 // Get Twin
 router.route('/:id/twin').get(deviceController.getDeviceTwin);
 
