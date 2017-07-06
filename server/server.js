@@ -25,15 +25,14 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 /**
  * Start Express server.
  */
+const webpackConfig = process.env.NODE_ENV === 'development' ? require('../webpack.config.dev') : null;
 /* eslint-disable no-console*/
-if (process.env.NODE_ENV === 'development') {
+if (webpackConfig) {
   console.log('server is running in development mode');
-  const webpackConfig = require('../webpack.config.dev');
   const compiler = webpack(webpackConfig);
   const devServer = new WebpackDevServer(compiler, webpackConfig.devServer);
-  const devPort = 3001;
-  devServer.listen(devPort, () => {
-    console.log(`webpack-dev-server is listening on port ${devPort}`);
+  devServer.listen(webpackConfig.devServer.port, () => {
+    console.log(`webpack-dev-server is listening on port ${webpackConfig.devServer.port}`);
   });
 }
 

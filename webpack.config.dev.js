@@ -15,6 +15,7 @@ module.exports = {
     publicPath: '/',
   },
   devServer: {
+    port: 3001,
     hot: true,
     filename: '[name].js',
     publicPath: '/',
@@ -47,7 +48,7 @@ module.exports = {
         loader: 'json-loader',
       }, {
         test: /\.css$/,
-        loader: 'style!css?modules&localIdentName=[name]---[local]---[hash:base64:5]',
+        loader: 'style-loader!css?modules&localIdentName=[name]---[local]---[hash:base64:5]',
       },
     ],
   },
