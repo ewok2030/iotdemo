@@ -9,7 +9,6 @@ import webpack from 'webpack';
 import socketio from 'socket.io';
 // webpack
 import WebpackDevServer from 'webpack-dev-server';
-import webpackConfig from '../webpack.dev.config';
 import iotSockets from './sockets/sockets';
 import serverConfig from './config';
 
@@ -29,7 +28,7 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 /* eslint-disable no-console*/
 if (process.env.NODE_ENV === 'development') {
   console.log('server is running in development mode');
-
+  const webpackConfig = require('../webpack.config.dev');
   const compiler = webpack(webpackConfig);
   const devServer = new WebpackDevServer(compiler, webpackConfig.devServer);
   const devPort = 3001;
