@@ -56,7 +56,7 @@ export default class DeviceTwinEditor extends React.Component {
           <div className="form-group">
             <div className="input-group">
               <div className="input-group-addon">Desired&nbsp;&nbsp;&nbsp;</div>
-              <Field name={this.props.property} type={this.props.propertyType} component={renderInput} />
+              <Field name={this.props.property} component={renderInput} type={this.props.propertyType} />
               <span className="input-group-btn">
                 <button action="submit" disabled={pristine || invalid} className="btn btn-primary">Update</button>
               </span>

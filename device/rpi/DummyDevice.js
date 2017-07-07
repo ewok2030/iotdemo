@@ -30,19 +30,30 @@ export default class DummyDevice {
 
   start() {
     if (this._interval) clearInterval(this._interval);
-    this._interval = setInterval(this.readData, this.properties.message.interval);
+    this._interval = setInterval(this.readData, Number(this.properties.message.interval));
   }
 
   handleMessageUpdate = (patch) => {
     const { interval } = patch;
     const change = { ...patch };
+    // sending a string messes things up
+    if (interval) change.interval = Number(change.interval);
+
     // Validate the properties!
     if (interval && (interval < this.config.message.interval.min || interval > this.config.message.interval.max)) {
       console.error(`desired message transmission interval of ${interval} [ms] is not valid (${this.config.messsage.interval.min} <= x <= ${this.config.message.interval.max}). Ignoring.`);
       change.interval = this.properties.message.interval;
     }
-    this.handleTwinUpdate({ message: change });
+    // Update local properties
+    this.properties = {
+      ...this.properties,
+      message: {
+        ...this.properties.message,
+        ...change,
+      },
+    };
     this.start();
+    this.handleTwinUpdate({ message: change });
   }
 
   handleUploadUpdate = (patch) => {
@@ -53,12 +64,19 @@ export default class DummyDevice {
       console.error(`desired file upload counter of ${counter} is not valid (${this.config.fileupload.counter.min} <= x <= ${this.config.fileupload.counter.max}). Ignoring.`);
       change.counter = this.properties.fileupload.counter;
     }
+    // Update local properties
+    this.properties = {
+      ...this.properties,
+      fileupload: {
+        ...this.properties.fileupload,
+        ...change,
+      },
+    };
     this.handleTwinUpdate({ fileupload: change });
   }
 
   handleTwinUpdate = (patch) => {
     console.log(`desired properties update: ${JSON.stringify(patch)}`);
-    this.properties = { ...this.properties, ...patch };
     this._twin.properties.reported.update(patch, (err) => {
       if (err) console.log(`error reporting updated twin: ${err}`);
     });
@@ -83,7 +101,6 @@ export default class DummyDevice {
 
     // log the message in a buffer
     this._buffer.push(data);
-
     // send the data message
     if (this.properties.message.transmit === true) {
       this._client.sendEvent(message, (e, result) => {
