@@ -26,7 +26,7 @@ export default class Device extends DummyDevice {
       if (err) throw err;
 
       // Create payload for the message
-      this.sendMessage({
+      super.sendMessage({
         sourceTimestamp: new Date(),
         temperature,
         humidity,
