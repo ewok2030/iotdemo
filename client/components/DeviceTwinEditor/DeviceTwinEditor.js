@@ -43,7 +43,7 @@ export default class DeviceTwinEditor extends React.Component {
     return (
       <div className="">
         <div className="form-group">
-          <label htmlFor={this.props.property}>Interval [ms]</label>
+          { /* <label htmlFor={this.props.property}>Interval [ms]</label> */ }
           <div className="input-group">
             <div className="input-group-addon">Reported</div>
             <input className="form-control" type="string" value={`${this.props.reported} @ ${new Date(this.props.lastReported)}`} disabled />

@@ -6,6 +6,9 @@ const router = new Router();
 // Get Devices
 router.route('/').get(deviceController.getDevices);
 
+// Get Device
+router.route('/:id').get(deviceController.getDevice);
+
 // Get Twin
 router.route('/:id/twin').get(deviceController.getDeviceTwin);
 

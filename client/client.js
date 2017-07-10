@@ -7,7 +7,7 @@ import store from './redux/store';
 // Views
 import Layout from './containers/Layout';
 import DeviceHome from './containers/DeviceHome';
-import DeviceChart from './containers/DeviceChart';
+import Device from './containers/Device';
 
 class App extends React.Component {
   render() {
@@ -16,7 +16,7 @@ class App extends React.Component {
         <Router history={hashHistory}>
           <Route path="/" component={Layout} >
             <IndexRoute component={DeviceHome} />
-            <Route path="/device(/:deviceId)" name="device" component={DeviceChart} />
+            <Route path="/device(/:deviceId)" name="device" component={Device} />
           </Route>
         </Router>
       </Provider>

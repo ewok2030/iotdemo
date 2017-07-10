@@ -13,6 +13,17 @@ export function getDevices(req, res) {
   });
 }
 
+export function getDevice(req, res) {
+  const registry = Registry.fromConnectionString(config.hub);
+  registry.get(req.params.id, (error, device) => {
+    if (error) {
+      res.status(400).send(error.message);
+    } else {
+      res.json(device);
+    }
+  });
+}
+
 export function getDeviceTwin(req, res) {
   const registry = Registry.fromConnectionString(config.hub);
   registry.getTwin(req.params.id, (error, twin) => {

@@ -11,6 +11,8 @@ const CONNECTION_OPEN = 'client/CONNECTION_OPEN';
 const CONNECTION_CLOSED = 'client/CONNECTION_CLOSED';
 const GET_DEVICES_SUCCESS = 'client/GET_DEVICES_SUCCESS';
 const GET_DEVICES_ERROR = 'client/GET_DEVICES_ERROR';
+const GET_DEVICE_SUCCESS = 'client/GET_DEVICE_SUCCESS';
+const GET_DEVICE_ERROR = 'client/GET_DEVICE_ERROR';
 const GET_TWIN_SUCCESS = 'client/GET_TWIN_SUCCESS';
 const GET_TWIN_ERROR = 'client/GET_TWIN_ERROR';
 const UPDATE_TWIN_SUCCESS = 'client/UPDATE_TWIN_SUCCESS';
@@ -18,7 +20,7 @@ const UPDATE_TWIN_ERROR = 'client/UPDATE_TWIN_ERROR';
 
 // Initial state
 const initialState = {
-  deviceId: null,
+  active: null,
   twin: null,
   isConnected: false,
   messages: [],
@@ -48,10 +50,19 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         devices: [],
       };
+    case GET_DEVICE_SUCCESS:
+      return {
+        ...state,
+        active: action.data,
+      };
+    case GET_DEVICE_ERROR:
+      return {
+        ...state,
+        active: null,
+      };
     case GET_TWIN_SUCCESS:
       return {
         ...state,
-        deviceId: action.data.deviceId,
         twin: { ...action.data.twin },
       };
     case GET_TWIN_ERROR:
@@ -95,6 +106,14 @@ export const getDevices = () => (dispatch) => {
     dispatch({ type: GET_DEVICES_SUCCESS, data: response.data });
   }).catch((response) => {
     dispatch({ type: GET_DEVICES_ERROR, error: response.data });
+  });
+};
+
+export const getDevice = deviceId => (dispatch) => {
+  axios.get(`/api/device/${deviceId}`).then((response) => {
+    dispatch({ type: GET_DEVICE_SUCCESS, data: response.data });
+  }).catch((response) => {
+    dispatch({ type: GET_DEVICE_ERROR, error: response.data });
   });
 };
 
