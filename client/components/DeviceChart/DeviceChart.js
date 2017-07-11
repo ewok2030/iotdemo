@@ -11,7 +11,7 @@ export default class DeviceChart extends React.Component {
 
   render() {
     // temperature
-    let temp = this.props.messages;
+    let temp = this.props.messages.map(x => [new Date(x.sourceTimestamp).getTime(), x.temperature]);
     if (this.props.tempInputUnits.toLowerCase() !== this.props.tempDisplayUnits.toLowerCase()) {
       if (this.props.tempDisplayUnits.toLowerCase() === 'f') {
         temp = this.props.messages.map(x => [new Date(x.sourceTimestamp).getTime(), (x.temperature * (9 / 5)) + 32]);

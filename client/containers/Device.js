@@ -11,6 +11,7 @@ const mapStateToProps = state => ({
   twin: state.device.twin,
   isConnected: state.device.isConnected,
   messages: state.device.messages,
+  messagesLoading: state.device.messagesLoading,
 });
 
 // Map actions to component's properties
@@ -53,6 +54,7 @@ export default class Device extends React.Component {
     closeConnection: React.PropTypes.func.isRequired,
     initMessages: React.PropTypes.func.isRequired,
     messages: React.PropTypes.array.isRequired,
+    messagesLoading: React.PropTypes.bool.isRequired,
     clearMessages: React.PropTypes.func.isRequired,
   }
 
@@ -120,6 +122,7 @@ export default class Device extends React.Component {
   }
 
   render() {
+    // device
     let device = (<div className="input-group">
       <span className="input-group-addon">
         <i className="glyphicon glyphicon-exclamation-sign" />
@@ -142,6 +145,12 @@ export default class Device extends React.Component {
       </div>);
     }
 
+    // download
+    let download = <button type="button" className="btn btn-primary" onClick={this.handleHistoryRefresh} ><span className="glyphicon glyphicon-cloud-download" /></button>;
+    if (this.props.messagesLoading) {
+      download = <button type="button" className="btn btn-primary" onClick={this.handleHistoryRefresh} disabled><span className="glyphicon glyphicon-hourglass" /></button>;
+    }
+    // time, temp, humid
     let time = new Date(0);
     if (this.props.messages.length > 0) {
       time = new Date(this.props.messages[this.props.messages.length - 1].sourceTimestamp);
@@ -168,7 +177,7 @@ export default class Device extends React.Component {
           <h5>History <small>hours</small></h5>
           <div className="input-group">
             <div className="input-group-btn">
-              <button type="button" className="btn btn-primary" onClick={this.handleHistoryRefresh} ><span className="glyphicon glyphicon-cloud-download" /></button>
+              {download}
             </div>
             <input type="number" className="form-control" value={this.state.hours} onChange={this.handleHoursChange} />
             <div className="input-group-btn">

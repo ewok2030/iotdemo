@@ -2,6 +2,7 @@ import axios from 'axios';
 
 // Action types
 const NEW_MESSAGE = 'client/NEW_MESSAGE';
+const INIT_MESSAGES = 'client/INIT_MESSAGES';
 const INIT_MESSAGES_ERROR = 'client/INIT_MESSAGES_ERROR';
 const INIT_MESSAGES_SUCCESS = 'client/INIT_MESSAGES_SUCCESS';
 const CLEAR_MESSAGES = 'client/CLEAR_MESSAGES';
@@ -23,6 +24,7 @@ const initialState = {
   active: null,
   twin: null,
   isConnected: false,
+  messagesLoading: false,
   messages: [],
   devices: [],
 };
@@ -80,15 +82,27 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         twin: null,
       };
+    case INIT_MESSAGES:
+      return {
+        ...state,
+        messages: [],
+        messagesLoading: true,
+      };
     case INIT_MESSAGES_SUCCESS:
+    /*
+      The transformation below is required because Stream Analytics puts data in DocumentDb forcing all fields to lower case
+      The data coming direct from the IoT Hub is case sensitive, so we need to make the daat from DocumentDb case sensitive.
+    */
       return {
         ...state,
         messages: action.data.messages.map(x => ({ sourceTimestamp: x.sourcetimestamp, temperature: x.temperature, humidity: x.humidity })),
+        messagesLoading: false,
       };
     case NEW_MESSAGE:
       return {
         ...state,
         messages: [...state.messages, action.data.message],
+        messagesLoading: false,
       };
     case CLEAR_MESSAGES:
       return {
@@ -142,6 +156,7 @@ export const closeConnection = () => (dispatch) => {
 }; // closeConnection
 
 export const initMessages = (deviceId, hours) => (dispatch) => {
+  dispatch({ type: INIT_MESSAGES });
   axios.post(`/api/device/${deviceId}/messages/history?hours=${hours}`).then((response) => {
     dispatch({ type: INIT_MESSAGES_SUCCESS, data: { deviceId, messages: response.data } });
   }).catch((response) => {
