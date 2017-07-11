@@ -77,7 +77,7 @@ export default class Device extends React.Component {
       hours = Number(this.props.location.query.hours);
     }
 
-    let englishUnits = true;
+    let englishUnits = false;
     if ('englishUnits' in this.props.location.query) {
       englishUnits = Boolean(this.props.location.query.englishUnits);
     }
@@ -168,7 +168,7 @@ export default class Device extends React.Component {
           <h5>History <small>hours</small></h5>
           <div className="input-group">
             <div className="input-group-btn">
-              <button type="button" className="btn btn-primary" onClick={this.handleHistoryRefresh} ><span className="glyphicon glyphicon-download" /></button>
+              <button type="button" className="btn btn-primary" onClick={this.handleHistoryRefresh} ><span className="glyphicon glyphicon-cloud-download" /></button>
             </div>
             <input type="number" className="form-control" value={this.state.hours} onChange={this.handleHoursChange} />
             <div className="input-group-btn">
@@ -180,7 +180,7 @@ export default class Device extends React.Component {
           <h5>Interval <small>ms</small></h5>
           <div className="input-group">
             <span className="input-group-btn">
-              <button type="button" className="btn btn-primary" onClick={this.handleUpdate} ><span className="glyphicon glyphicon-upload" /></button>
+              <button type="button" className="btn btn-primary" onClick={this.handleUpdate} ><span className="glyphicon glyphicon-cloud-upload" /></button>
             </span>
             <input type="number" className="form-control" value={this.state.desiredInterval} onChange={this.handleIntervalChange} />
           </div>
