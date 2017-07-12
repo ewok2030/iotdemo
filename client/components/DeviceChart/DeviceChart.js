@@ -7,6 +7,11 @@ export default class DeviceChart extends React.Component {
     messages: React.PropTypes.array.isRequired,
     tempInputUnits: React.PropTypes.string.isRequired,
     tempDisplayUnits: React.PropTypes.string.isRequired,
+    height: React.PropTypes.any,
+  }
+
+  static defaultProps = {
+    height: null,
   }
 
   render() {
@@ -25,6 +30,7 @@ export default class DeviceChart extends React.Component {
 
     const config = {
       title: { text: '' },
+      chart: { height: this.props.height },
       xAxis: { type: 'datetime' },
       yAxis: [{ title: { text: 'Temperature' }, opposite: false }, { title: { text: 'Humidity' }, opposite: false }],
       series: [{

@@ -223,8 +223,8 @@ export default class Device extends React.Component {
             </dl>
           </div>
         </div>
-        <DeviceChart messages={this.props.messages} tempInputUnits="C" tempDisplayUnits={(this.state.englishUnits) ? 'F' : 'C'} />
-      </div >
+        <DeviceChart messages={this.props.messages} tempInputUnits="C" tempDisplayUnits={(this.state.englishUnits) ? 'F' : 'C'} height={620} />
+      </div>
     );
   }
 }
