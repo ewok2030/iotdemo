@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 // Components
 import DeviceChart from '../components/DeviceChart/DeviceChart';
+import DashboardMetric from '../components/DashboardMetric/DashboardMetric';
 // Actions
 import { getDevice, getTwin, updateTwin, openConnection, closeConnection, initMessages, clearMessages } from '../redux/modules/device';
 
@@ -166,65 +167,60 @@ export default class Device extends React.Component {
     if (this.props.messages.length > 0) {
       humid = this.props.messages[this.props.messages.length - 1].humidity;
     }
-
+    // style
     return (
       <div>
-        <div className="col-md-3">
-          <h5>Device</h5>
-          {device}
-        </div>
-        <div className="col-md-3">
-          <h5>History <small>hours</small></h5>
-          <div className="input-group">
-            <div className="input-group-btn">
-              {download}
-            </div>
-            <input type="number" className="form-control" value={this.state.hours} onChange={this.handleHoursChange} />
-            <div className="input-group-btn">
-              <button type="button" className={`btn btn-${this.props.isConnected ? 'success' : 'danger'}`} onClick={this.handleConnect} ><span className="glyphicon glyphicon-off" /></button>
+        <div className="row">
+          <div className="col-md-4">
+            <h5>Device</h5>
+            {device}
+          </div>
+          <div className="col-md-4">
+            <h5>History <small>hours</small></h5>
+            <div className="input-group">
+              <div className="input-group-btn">
+                {download}
+              </div>
+              <input type="number" className="form-control" value={this.state.hours} onChange={this.handleHoursChange} />
+              <div className="input-group-btn">
+                <button type="button" className={`btn btn-${this.props.isConnected ? 'success' : 'danger'}`} onClick={this.handleConnect} ><span className="glyphicon glyphicon-off" /></button>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="col-md-3">
-          <h5>Interval <small>ms</small></h5>
-          <div className="input-group">
-            <span className="input-group-btn">
-              <button type="button" className="btn btn-primary" onClick={this.handleUpdate} ><span className="glyphicon glyphicon-cloud-upload" /></button>
-            </span>
-            <input type="number" className="form-control" value={this.state.desiredInterval} onChange={this.handleIntervalChange} />
-          </div>
-          <p className="help-block">
-            Device reported&nbsp;
+          <div className="col-md-4">
+            <h5>Interval <small>ms</small></h5>
+            <div className="input-group">
+              <span className="input-group-btn">
+                <button type="button" className="btn btn-primary" onClick={this.handleUpdate} ><span className="glyphicon glyphicon-cloud-upload" /></button>
+              </span>
+              <input type="number" className="form-control" value={this.state.desiredInterval} onChange={this.handleIntervalChange} />
+            </div>
+            <p className="help-block">
+              Device reported&nbsp;
             {(this.props.twin != null) ? this.props.twin.reported.message.interval : null}
-            &nbsp;[ms] on&nbsp;
+              &nbsp;[ms] on&nbsp;
             {(this.props.twin != null) ?
-              new Date(this.props.twin.reported.$metadata.message.interval.$lastUpdated).toLocaleString() :
-              null
-            }
-            &nbsp;
-            <button type="button" className="btn btn-default btn-xs" onClick={this.handleRefresh}>Refresh</button>
-          </p>
-        </div>
-        <div className="col-md-3">
-          <div className="col-md-6">
-            <dl>
-              <dt>Last Message</dt>
-              <dd><span className="label label-default">{time.toLocaleString()}</span></dd>
-              <dt>Message Count</dt>
-              <dd><span className="label label-default">{this.props.messages.length}</span></dd>
-            </dl>
+                new Date(this.props.twin.reported.$metadata.message.interval.$lastUpdated).toLocaleString() :
+                null
+              }
+              &nbsp;
+              <button type="button" className="btn btn-default btn-xs" onClick={this.handleRefresh}><i className="glyphicon glyphicon-refresh" /></button>
+            </p>
           </div>
-          <div className="col-md-6">
-            <dl>
-              <dt>Temperature</dt>
-              <dd><span className="label label-default">{`${temp.toFixed(2)} ${this.state.englishUnits ? 'F' : 'C'}`}</span></dd>
-              <dt>Humidity</dt>
-              <dd><span className="label label-default">{humid.toFixed(2)} %</span></dd>
-            </dl>
+        </div>
+        <div className="row">
+          <div className="col-md-4">
+            <DashboardMetric main={time.toLocaleString()} sub={`Message Count: ${this.props.messages.length}`} backgroundStyle="bg-info" />
+          </div>
+          <div className="col-md-4">
+            <DashboardMetric main={`${temp.toFixed(2)} ${this.state.englishUnits ? 'F' : 'C'}`} sub="Temperature" backgroundStyle="bg-info" />
+          </div>
+          <div className="col-md-4">
+            <DashboardMetric main={`${humid.toFixed(2)} %`} sub="Humidity" backgroundStyle="bg-info" />
           </div>
         </div>
         <DeviceChart messages={this.props.messages} tempInputUnits="C" tempDisplayUnits={(this.state.englishUnits) ? 'F' : 'C'} height={620} />
-      </div>
+      </div >
     );
   }
 }
