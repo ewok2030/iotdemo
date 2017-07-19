@@ -92,6 +92,10 @@ export default class Device extends React.Component {
     };
   }
 
+  toggleUnits = () => {
+    this.setState({ englishUnits: !this.state.englishUnits });
+  }
+
   handleHistoryRefresh = () => {
     if (this.props.device != null) {
       this.props.initMessages(this.props.device.deviceId, this.state.hours);
@@ -174,6 +178,13 @@ export default class Device extends React.Component {
           <div className="col-md-4">
             <h5>Device</h5>
             {device}
+            <p className="help-block">
+              Temperature&nbsp;
+              <div className="btn-group" role="group" aria-label="...">
+                <button type="button" onClick={this.toggleUnits} className={`btn btn-${this.state.englishUnits ? 'default' : 'primary'} btn-xs`}>C</button>
+                <button type="button" onClick={this.toggleUnits} className={`btn btn-${this.state.englishUnits ? 'primary' : 'default'} btn-xs`}>F</button>
+              </div>
+            </p>
           </div>
           <div className="col-md-4">
             <h5>History <small>hours</small></h5>
